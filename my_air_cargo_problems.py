@@ -57,8 +57,14 @@ class AirCargoProblem(Problem):
 
             :return: list of Action objects
             '''
-            loads = []
+            # loads = []
             # TODO create all load ground actions from the domain Load action
+            #loads = [Load(cargo,plane,airport) for cargo in cargos and plane in planes and airport in airports if (At(cargo,airport) and At(plane,airport))]
+            loads = [Action(exp("Load({},{},{})".format(cargo,plane,airport)),
+                            [[expr("At({},{})".format(cargo,airport)),expr("At({},{})".format(plane,airport))],[]],
+                            [[expr("In({},{})".format(cargo,plane))],[expr("At({}.{})".format(cargo,airport))]]),
+                     for cargo in cargos and plane in planes and airport in airports
+                     if (At(cargo,airport) and At(plane,airport))]
             return loads
 
         def unload_actions():
@@ -68,6 +74,11 @@ class AirCargoProblem(Problem):
             '''
             unloads = []
             # TODO create all Unload ground actions from the domain Unload action
+            unloads = [Action(exp("Unload({},{},{})".format(cargo,plane,airport)),
+                              [[expr("In({},{})".format(cargo,plane)),expr("At({},{})".format(plane,airport))],[]],
+                              [[expr("At({},{})".format(cargo,airport))],[expr("In({}.{})".format(cargo,plane))]]),
+                       for cargo in cargos and plane in planes and airport in airports
+                       if (In(cargo,plane) and At(plane,airport))]
             return unloads
 
         def fly_actions():
@@ -102,6 +113,7 @@ class AirCargoProblem(Problem):
         :return: list of Action objects
         """
         # TODO implement
+        fluents = decode_state(state,self.state_map)
         possible_actions = []
         return possible_actions
 
